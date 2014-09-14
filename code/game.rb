@@ -40,6 +40,11 @@ class Lion < MovingObject
     roar if should_roar
     self.should_roar = false
   end
+
+  def can_eat?(other)
+    x = @position.x
+    (x-30...x+30).cover? other.position.x
+  end
 end
 
 class Zebra < MovingObject
@@ -54,6 +59,24 @@ class Zebra < MovingObject
   end
 end
 
+class Savannah < MovingObject
+  def update(elapsed)
+    @position.x += -(elapsed * 50)
+    super
+  end
+
+  def draw(d)
+    # p @position.x
+    # @position.x = d.size.x if @position.x < 0
+    #
+    # d.push
+    # d.scale(V[1.5,1.5])
+    # d.image(@bg, V[0,-200])
+    super
+    # d.pop
+  end
+end
+
 
 
 class LeoneMangione < Game
@@ -62,27 +85,22 @@ class LeoneMangione < Game
     horizon = size.y * 0.75
     @lion = Lion.new(V[size.x * 0.2, horizon * 1.05])
     @zebra = Zebra.new(V[size.x * 1.2, horizon])
-    @bg = Image.new('bg.png')
-    @animals = [
+    @savannah = Savannah.new(V[0,0], 'savannah', 1)
+    @savannahB = Savannah.new(V[display.size.x, 0], 'savannah', 1)
+
+    @things = [
+      @savannah,
+      @savannahB,
       @zebra,
       @lion,
     ]
   end
 
   def update(elapsed)
-    draw_bg(display)
-    lion_x = @lion.position.x
-    @lion.should_roar = true if (lion_x-30...lion_x+30).cover? @zebra.position.x
-    @animals.each do |animal|
-      animal.update(elapsed)
-      animal.draw(display)
+    @lion.should_roar = true if @lion.can_eat?(@zebra)
+    @things.each do |thing|
+      thing.update(elapsed)
+      thing.draw(display)
     end
-  end
-
-  def draw_bg(d)
-    d.push
-    d.scale(V[1.5,1.5])
-    d.image(@bg, V[0,-200])
-    d.pop
   end
 end
