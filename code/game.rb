@@ -21,12 +21,12 @@ class LeoneMangione < Game
 end
 
 
-class Lion
+class Zebra
   def initialize(position)
     @position = position
     @images = [
-      Image.new('lion-1.png'),
-      Image.new('lion-2.png'),
+      Image.new('zebra-1.png'),
+      Image.new('zebra-2.png'),
     ]
     @image = @image1
     @elapsed = 0
@@ -50,3 +50,4 @@ class Lion
     d.pop
   end
 end
+
