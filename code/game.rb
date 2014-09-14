@@ -1,18 +1,18 @@
 class LeoneMangione < Game
   def setup
     size = display.size
-    @horizon = size.y * 0.8
-    @lion = Lion.new(V[size.x * 0.2, horizon])
-    @zebra = Zebra.new(V[size.x * 0.8, horizon])
+    horizon = size.y * 0.75
+    @lion = Lion.new(V[size.x * 0.2, horizon * 1.05])
+    @zebra = Zebra.new(V[size.x * 0.6, horizon])
     @bg = Image.new('bg.png')
     @animals = [
       @lion,
       @zebra,
     ]
-    draw_bg(display)
   end
 
   def update(elapsed)
+    draw_bg(display)
     @animals.each do |animal|
       animal.update(elapsed)
       animal.draw(display)
