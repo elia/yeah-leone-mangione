@@ -1,120 +1,52 @@
 class LeoneMangione < Game
   def setup
-    @lion = Lion.new(display.size / 2)
+    size = display.size
+    @center = V[size.x * 0.2, size.y * 0.8]
+    @lion = Lion.new(@center)
     @bg = Image.new('bg.png')
   end
 
   def update(elapsed)
+    @lion.update(elapsed)
+    draw_bg(display)
+    @lion.draw(display)
+  end
+
+  def draw_bg(d)
+    d.push
+    d.scale(V[1.5,1.5])
+    d.image(@bg, V[0,-200])
+    d.pop
   end
 end
 
 
-# Player ship.
 class Lion
-  # COLOR = C['#ff8']
-  # SPEED = 5
-  # ROTATE_SPEED = 5
-  # SHOOT_SOUND = Sound['shoot.wav']
-  # DEATH_SOUND = Sound['explode.wav']
-  # attr_reader :position
-  #
   def initialize(position)
     @position = position
-    # @size = V[32, 32]
-    # @velocity = V[0, 0]
-    # @direction = Math::PI * 1.5
-    # @args = args
+    @images = [
+      Image.new('lion-1.png'),
+      Image.new('lion-2.png'),
+    ]
+    @image = @image1
+    @elapsed = 0
   end
-  #
-  # def update(elapsed, game)
-  #   control(elapsed, game)
-  #   move(elapsed, game)
-  #   wrap(game)
-  #   collide(game)
-  # end
-  #
-  # def control(elapsed, game)
-  #   # Movement control.
-  #   @direction += ROTATE_SPEED * elapsed if game.keyboard.pressing? :right
-  #   @direction -= ROTATE_SPEED * elapsed if game.keyboard.pressing? :left
-  #   @thrusting = game.keyboard.pressing? :up
-  #
-  #   # Weapon control.
-  #   if game.keyboard.pressed? :z
-  #     SHOOT_SOUND.play
-  #
-  #     game.things << Bullet.new(position: @position, direction: @direction)
-  #   end
-  # end
-  #
-  # def move(elapsed, game)
-  #   # If thrusting, add to velocity along direction.
-  #   if @thrusting
-  #     @velocity.along! @direction, SPEED * elapsed
-  #   end
-  #
-  #   @position += @velocity
-  # end
-  #
-  # # Wrap to other edge of space as needed (there is no escape).
-  # def wrap(game)
-  #   half_size = @size / 2
-  #
-  #   if (left_overlap = -@position.x - half_size.x) > 0
-  #     @position.x = game.display.width - left_overlap + half_size.y
-  #   elsif (right_overlap = @position.x - half_size.x - game.display.width) > 0
-  #     @position.x = right_overlap - half_size.y
-  #   end
-  #
-  #   if (top_overlap = -@position.y - half_size.y) > 0
-  #     @position.y = game.display.height - top_overlap + half_size.y
-  #   elsif (bottom_overlap = @position.y - half_size.y - game.display.height) > 0
-  #     @position.y = bottom_overlap - half_size.y
-  #   end
-  # end
-  #
-  # def collide(game)
-  #   game.things.each do |thing|
-  #     # If collided with something collidable..
-  #     if thing.respond_to?(:colliding?) && thing.colliding?(@position)
-  #
-  #       # Kill said collidable.
-  #       thing.die(game)
-  #
-  #       DEATH_SOUND.play
-  #
-  #       # Reset self.
-  #       initialize(@args)
-  #
-  #       return
-  #     end
-  #   end
-  # end
-  #
-  # def draw(d)
-  #   d.stroke_color = COLOR
-  #
-  #   d.push
-  #     d.translate @position
-  #     d.rotate @direction + Math::PI / 2
-  #     d.translate -@size / 2
-  #
-  #     d.begin_shape
-  #       d.move_to V[@size.x / 2, 0]
-  #       d.line_to V[@size.x, @size.y]
-  #       d.line_to V[@size.x / 2, @size.y / 2]
-  #       d.line_to V[0, @size.y]
-  #       d.line_to V[@size.x / 2, 0]
-  #     d.end_shape
-  #     d.stroke_shape
-  #
-  #     if @thrusting
-  #       d.begin_shape
-  #         d.move_to V[@size.x / 2, @size.y / 2]
-  #         d.line_to V[@size.x / 2, @size.y]
-  #       d.end_shape
-  #       d.stroke_shape
-  #     end
-  #   d.pop
-  # end
+
+  def update(elapsed)
+    @elapsed += elapsed
+    @elapsed = 0 if @elapsed >= 1
+    @image = @images[(@elapsed*2).to_i]
+  end
+
+  def draw(d)
+    d.push
+
+    # Move "pen" by position.
+    d.translate @position
+
+    # Draw the eyes part of image, centered on pen.
+    d.image(@image, V[0,0])
+
+    d.pop
+  end
 end
