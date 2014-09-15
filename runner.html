@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Game</title>
+
+  <style>
+    html, body {
+      overflow: hidden;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background: black;
+    }
+
+    .center-content {
+      display: -ms-flexbox;
+      -ms-flex-pack: center;
+      -ms-flex-align: center;
+      display: -moz-box;
+      -moz-box-pack: center;
+      -moz-box-align: center;
+      display: -webkit-box;
+      -webkit-box-pack: center;
+      -webkit-box-align: center;
+      display: box;
+      box-pack: center;
+      box-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+
+  <script>
+    function scaleDisplay() {
+      var canvas = document.getElementsByTagName('canvas')[0],
+
+          width_scale = window.innerWidth / canvas.width,
+          height_scale = window.innerHeight / canvas.height,
+
+          scale = Math.min(width_scale, height_scale);
+
+      if (FACTORIAL_SCALING && scale >= 1) {
+        scale = Math.floor(scale);
+      }
+
+      var width = canvas.width * scale,
+          height = canvas.height * scale,
+
+          sizeStyle = "width:"+width+"px; height:"+height+"px";
+
+      canvas.setAttribute('style', sizeStyle);
+    }
+  </script>
+</head>
+<body class="center-content" onresize="scaleDisplay()">
+  <canvas></canvas>
+
+  <div class="hidden">
+    <img src="./assets/galloping zebras.jpg" />
+<img src="./assets/lion-1.png" />
+<img src="./assets/lion-2.png" />
+<audio src="./assets/lion-roar.mp3"></audio>
+<img src="./assets/savannah-1.png" />
+<img src="./assets/tips-for-photographing-wildlife-zebra.jpg" />
+<img src="./assets/zebra-1.png" />
+<img src="./assets/zebra-2.png" />
+<img src="./assets/zebra-21899334.jpg" />
+<img src="./assets/zebras,-running-149969.jpg" />
+  </div>
+
+  <script src="./assets/yeah/web/dependencies.js"></script>
+  <script src="./assets/yeah/web.js"></script>
+  <script src="./assets/yeah/web/setup.js"></script>
+
+  <script src="./assets/config.js"></script>
+  <script src="./assets/game.js"></script>
+
+  <script src="./assets/yeah/web/start.js"></script>
+
+  <script>scaleDisplay()</script>
+</body>
+</html>
