@@ -1,9 +1,10 @@
 
 
 class ::MovingObject
-  def initialize(position, image_name = self.class.name.downcase, frames = 2)
+  def initialize(position, image_name = self.class.name.downcase, frames = 2, extension = 'png')
     @position = position
-    @images = 1.upto(frames).map { |i| Image.new("#{image_name}-#{i}.png") }
+    @extension = extension
+    @images = 1.upto(frames).map { |i| Image.new("#{image_name}-#{i}.#{extension}") }
     @image = @image1
     @elapsed = 0
   end
@@ -30,9 +31,10 @@ end
 
 class Lion < MovingObject
   attr_accessor :should_roar
+  ROAR = Sound.new('lion-roar.mp3')
 
   def roar
-    (@roar ||= Sound.new('lion-roar.mp3')).play
+    ROAR.play
   end
 
   def draw(d)
@@ -49,7 +51,7 @@ class Lion < MovingObject
 
   def can_eat?(other)
     x = @position.x+100
-    (x-30...x+30).cover? other.position.x
+    (x-50...x+50).cover? other.position.x
   end
 end
 
@@ -67,7 +69,7 @@ end
 
 class Savannah < MovingObject
   def update(elapsed)
-    @position.x += -(elapsed * 50)
+    @position.x += -(elapsed * 80)
     super
   end
 
@@ -85,8 +87,8 @@ class LeoneMangione < Game
     @horizon = @size.y * 0.75
     @lion = Lion.new(V[@size.x * 0.2, @horizon * 1.05])
     @zebra = new_zebra
-    @savannah = Savannah.new(V[0,0], 'savannah', 1)
-    @savannahB = Savannah.new(V[@size.x, 0], 'savannah', 1)
+    @savannah = Savannah.new(V[0,0], 'savannah', 1, 'jpg')
+    @savannahB = Savannah.new(V[1600, 0], 'savannah', 1, 'jpg')
 
     @things = [
       @savannah,
