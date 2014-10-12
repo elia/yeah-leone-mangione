@@ -133,11 +133,14 @@ class LeoneMangione < Game
   end
 
   def update(elapsed)
-    if @lion.can_eat?(@zebra)
+    if keyboard.pressed?(:ctrl)
       @lion.should_roar = true
-      @things.delete @zebra
-      @zebra = new_zebra
-      @things << @zebra
+
+      if @lion.can_eat?(@zebra)
+        @things.delete @zebra
+        @zebra = new_zebra
+        @things << @zebra
+      end
     end
 
     @things.each do |thing|
