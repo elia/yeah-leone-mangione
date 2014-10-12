@@ -67,15 +67,47 @@ class Zebra < MovingObject
   end
 end
 
-class Savannah < MovingObject
+class Savannah
+  def initialize(width, image_name = self.class.name.downcase+'.jpg')
+    @width = width
+    @position1 = V[0,0]
+    @position2 = V[width,0]
+    @image1 = Image.new("#{image_name}")
+    @image2 = @image1
+    @elapsed = 0
+    @speed = 80
+  end
+  attr_reader :position
+
   def update(elapsed)
-    @position.x += -(elapsed * 80)
-    super
+    delta = (elapsed * @speed)
+    delta1 = @position1.x.to_f - delta
+    delta2 = @position2.x.to_f - delta
+    @position1.x = delta1
+    @position2.x = delta2
+    cycle(@position1, @position2, @width)
+    cycle(@position2, @position1, @width)
+    @elapsed += elapsed
+  end
+
+  def cycle(image, other_image, width)
+    image.x = other_image.x + width if (image.x + width) <= 0
   end
 
   def draw(d)
-    @position.x = 0 if @position.x < -d.size.x
-    super
+    image = @image1
+    position = @position1
+    d.push
+    d.translate(position)  # Move "pen" by position.
+    d.image(image, V[0,0]) # Draw the eyes part of image, centered on pen.
+    d.pop
+
+    image = @image2
+    position = @position2
+    d.push
+    d.translate(position)  # Move "pen" by position.
+    d.image(image, V[0,0]) # Draw the eyes part of image, centered on pen.
+    d.pop
   end
 end
 
@@ -87,12 +119,10 @@ class LeoneMangione < Game
     @horizon = @size.y * 0.75
     @lion = Lion.new(V[@size.x * 0.2, @horizon * 1.05])
     @zebra = new_zebra
-    @savannah = Savannah.new(V[0,0], 'savannah', 1, 'jpg')
-    @savannahB = Savannah.new(V[1600, 0], 'savannah', 1, 'jpg')
+    @savannah = Savannah.new(1600)
 
     @things = [
       @savannah,
-      @savannahB,
       @zebra,
       @lion,
     ]
