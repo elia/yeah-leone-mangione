@@ -126,6 +126,9 @@ class Score
 
   def draw(d)
     d.push
+    d.fill_color = C['#ffffff']
+    d.text_font = Font['deja-vu-serif.ttf']
+    d.text_size = 32
     d.fill_text(@score.to_s, @position)
     d.pop
   end
@@ -140,7 +143,7 @@ class LeoneMangione < Game
     @lion = Lion.new(V[@size.x * 0.2, @horizon * 1.05])
     @zebra = new_zebra
     @savannah = Savannah.new(1600)
-    @score = Score.new(V[@size.x * 0.2, 100])
+    @score = Score.new(V[@size.x * 0.8, 100])
 
     @things = [
       @savannah,
@@ -154,7 +157,6 @@ class LeoneMangione < Game
     # display.text_font = Font['Comic Sans']
     display.text_size = 16
     display.fill_color(C['#fff'])
-
   end
 
   def new_zebra
