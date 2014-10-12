@@ -111,6 +111,26 @@ class Savannah
   end
 end
 
+class Score
+  def initialize(position = V[0,0])
+    @position = position
+    @score = 0
+  end
+
+  def score!
+    @score += 1
+  end
+
+  def update(elapsed)
+  end
+
+  def draw(d)
+    d.push
+    d.fill_text(@score.to_s, @position)
+    d.pop
+  end
+end
+
 
 
 class LeoneMangione < Game
@@ -120,12 +140,21 @@ class LeoneMangione < Game
     @lion = Lion.new(V[@size.x * 0.2, @horizon * 1.05])
     @zebra = new_zebra
     @savannah = Savannah.new(1600)
+    @score = Score.new(V[@size.x * 0.2, 100])
 
     @things = [
       @savannah,
       @zebra,
       @lion,
+      @score,
     ]
+
+    # setup text style
+    display.text_font = Font['deja-vu-serif.ttf']
+    # display.text_font = Font['Comic Sans']
+    display.text_size = 16
+    display.fill_color(C['#fff'])
+
   end
 
   def new_zebra
@@ -140,6 +169,7 @@ class LeoneMangione < Game
         @things.delete @zebra
         @zebra = new_zebra
         @things << @zebra
+        @score.score!
       end
     end
 
