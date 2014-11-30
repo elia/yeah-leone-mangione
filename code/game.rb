@@ -30,7 +30,8 @@ class ::MovingObject
     d.translate @position
 
     # Draw the eyes part of image, centered on pen.
-    d.image(@image, V[0,0])
+    x = (-@image.width/2)
+    d.image(@image, V[x,0])
 
     d.pop
   end
@@ -74,26 +75,16 @@ class Zebra < MovingObject
     @position.x += -(elapsed * 300)
     super
   end
-
-  def draw(d)
-    super
-    @position.x %= (d.size.x * 1.5)
-  end
 end
 
 class Elephant < MovingObject
+  def z
+    10
+  end
+
   def update(elapsed)
     @position.x += -(elapsed * 300)
     super
-  end
-
-  def z
-    1
-  end
-
-  def draw(d)
-    super
-    @position.x %= (d.size.x * 1.5)
   end
 end
 
@@ -213,7 +204,7 @@ class LeoneMangione < Game
   end
 
   def new_elephant
-    Elephant.new(V[@size.x, @horizon * 0.7])
+    Elephant.new(V[@size.x + 300, @horizon * 0.7])
   end
 
   def new_prey
@@ -230,6 +221,12 @@ class LeoneMangione < Game
     @game_over = true
     Text.draw(display, V[@size.x * 0.41, 350], 'GAME OVER')
     Text.draw(display, V[@size.x * 0.34, 250], 'you tried to eat an elephant!')
+  end
+
+  def replace_prey!
+    @things.delete @prey
+    @prey = new_prey
+    @things << @prey
   end
 
   def update(elapsed)
@@ -252,9 +249,7 @@ class LeoneMangione < Game
 
     if keyboard.pressing?(:ctrl)
       if @lion.can_eat?(@prey)
-        @things.delete @prey
-        @prey = new_prey
-        @things << @prey
+        replace_prey!
         @score.score!
         sort_things!
         p @things.map(&:class)
@@ -263,6 +258,9 @@ class LeoneMangione < Game
         return
       end
     end
+
+    p @prey.position.x
+    replace_prey! if @prey.position.x < -200
 
     @things.each do |thing|
       thing.update(elapsed)
