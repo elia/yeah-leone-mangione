@@ -1,4 +1,4 @@
-
+require 'pp'
 
 class ::MovingObject
   def initialize(position, image_name = self.class.name.downcase, frames = 2, extension = 'png')
@@ -9,6 +9,10 @@ class ::MovingObject
     @elapsed = 0
   end
   attr_reader :position
+
+  def z
+    0
+  end
 
   def update(elapsed)
     @elapsed += elapsed
@@ -67,6 +71,22 @@ class Zebra < MovingObject
   end
 end
 
+class Elephant < MovingObject
+  def update(elapsed)
+    @position.x += -(elapsed * 300)
+    super
+  end
+
+  def z
+    1
+  end
+
+  def draw(d)
+    super
+    @position.x %= (d.size.x * 1.5)
+  end
+end
+
 class Savannah
   def initialize(width, image_name = self.class.name.downcase+'.jpg')
     @width = width
@@ -78,6 +98,10 @@ class Savannah
     @speed = 80
   end
   attr_reader :position
+
+  def z
+    -1
+  end
 
   def update(elapsed)
     delta = (elapsed * @speed)
@@ -121,6 +145,10 @@ class Score
     @score += 1
   end
 
+  def z
+    0
+  end
+
   def update(elapsed)
   end
 
@@ -138,19 +166,20 @@ end
 
 class LeoneMangione < Game
   def setup
-    @size = display.size
-    @horizon = @size.y * 0.75
-    @lion = Lion.new(V[@size.x * 0.2, @horizon * 1.05])
-    @zebra = new_zebra
+    @size     = display.size
+    @horizon  = @size.y * 0.75
+    @lion     = Lion.new(V[@size.x * 0.2, @horizon * 1.05])
+    @prey     = new_prey
     @savannah = Savannah.new(1600)
-    @score = Score.new(V[@size.x * 0.8, 100])
+    @score    = Score.new(V[@size.x * 0.8, 100])
 
     @things = [
       @savannah,
-      @zebra,
+      @prey,
       @lion,
       @score,
     ]
+    sort_things!
 
     # setup text style
     display.text_font = Font['deja-vu-serif.ttf']
@@ -163,18 +192,36 @@ class LeoneMangione < Game
     Zebra.new(V[@size.x * 1.2, @horizon])
   end
 
+  def new_elephant
+    Elephant.new(V[@size.x, @horizon * 0.7])
+  end
+
+  def new_prey
+    rand > 0.99 ? new_zebra : new_elephant
+  end
+
+  def sort_things!
+    @thigs = @things.sort_by(&:z)
+  end
+
   def update(elapsed)
+    if keyboard.pressed?(:P)
+      @pause = !@pause
+      p pause: @pause
+    end
+    return if @pause
+
     if keyboard.pressed?(:ctrl)
       @lion.should_roar = true
     end
 
-    if keyboard.pressing?(:ctrl) and @lion.can_eat?(@zebra)
-      @things.delete @zebra
-      @zebra = new_zebra
-      @things << @zebra
+    if keyboard.pressing?(:ctrl) and @lion.can_eat?(@prey)
+      @things.delete @prey
+      @prey = new_prey
+      @things << @prey
       @score.score!
+      sort_things!
     end
-
 
     @things.each do |thing|
       thing.update(elapsed)
