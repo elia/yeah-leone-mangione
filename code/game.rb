@@ -162,6 +162,16 @@ class Score
   end
 end
 
+class Pause
+  def self.draw(d, position)
+    d.push
+    d.fill_color = C['#ffffff']
+    d.text_font = Font['deja-vu-serif.ttf']
+    d.text_size = 32
+    d.fill_text('Paused', position)
+    d.pop
+  end
+end
 
 
 class LeoneMangione < Game
@@ -205,9 +215,12 @@ class LeoneMangione < Game
   end
 
   def update(elapsed)
-    if keyboard.pressed?(:P)
+    if keyboard.pressed?(:p)
       @pause = !@pause
-      p pause: @pause
+      if @pause
+        @pause_position ||= V[@size.x * 0.2, 100]
+        Pause.draw(display, @pause_position)
+      end
     end
     return if @pause
 
