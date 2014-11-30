@@ -1,5 +1,8 @@
 require 'pp'
 
+module Prey
+end
+
 class ::MovingObject
   def initialize(position, image_name = self.class.name.downcase, frames = 2, extension = 'png')
     @position = position
@@ -54,12 +57,19 @@ class Lion < MovingObject
   end
 
   def can_eat?(other)
+    in_eat_range?(other) and
+      Prey === other
+  end
+
+  def in_eat_range?(other)
     x = @position.x+100
     (x-50...x+50).cover? other.position.x
   end
 end
 
 class Zebra < MovingObject
+  include Prey
+
   def update(elapsed)
     @position.x += -(elapsed * 300)
     super
@@ -162,13 +172,13 @@ class Score
   end
 end
 
-class Pause
-  def self.draw(d, position)
+class Text
+  def self.draw(d, position, text)
     d.push
     d.fill_color = C['#ffffff']
     d.text_font = Font['deja-vu-serif.ttf']
     d.text_size = 32
-    d.fill_text('Paused', position)
+    d.fill_text(text, position)
     d.pop
   end
 end
@@ -207,19 +217,31 @@ class LeoneMangione < Game
   end
 
   def new_prey
-    rand > 0.99 ? new_zebra : new_elephant
+    # rand > 0.5 ? new_zebra : new_elephant
+    @rand = !@rand
+    @rand ? new_zebra : new_elephant
   end
 
   def sort_things!
     @thigs = @things.sort_by(&:z)
   end
 
+  def game_over!
+    @game_over = true
+    Text.draw(display, V[@size.x * 0.41, 350], 'GAME OVER')
+    Text.draw(display, V[@size.x * 0.34, 250], 'you tried to eat an elephant!')
+  end
+
   def update(elapsed)
+    if @game_over
+      return
+    end
+
     if keyboard.pressed?(:p)
       @pause = !@pause
       if @pause
         @pause_position ||= V[@size.x * 0.2, 100]
-        Pause.draw(display, @pause_position)
+        Text.draw(display, @pause_position, 'Paused')
       end
     end
     return if @pause
@@ -228,12 +250,18 @@ class LeoneMangione < Game
       @lion.should_roar = true
     end
 
-    if keyboard.pressing?(:ctrl) and @lion.can_eat?(@prey)
-      @things.delete @prey
-      @prey = new_prey
-      @things << @prey
-      @score.score!
-      sort_things!
+    if keyboard.pressing?(:ctrl)
+      if @lion.can_eat?(@prey)
+        @things.delete @prey
+        @prey = new_prey
+        @things << @prey
+        @score.score!
+        sort_things!
+        p @things.map(&:class)
+      elsif @lion.in_eat_range?(@prey)
+        game_over!
+        return
+      end
     end
 
     @things.each do |thing|
