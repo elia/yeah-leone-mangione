@@ -184,6 +184,8 @@ class LeoneMangione < Game
     @savannah = Savannah.new(1600)
     @score    = Score.new(V[@size.x * 0.8, 100])
 
+    listen_to_touch_events
+
     @things = [
       @savannah,
       @prey,
@@ -197,6 +199,32 @@ class LeoneMangione < Game
     # display.text_font = Font['Comic Sans']
     display.text_size = 16
     display.fill_color(C['#fff'])
+  end
+
+  def listen_to_touch_events
+    %x{
+      document.body.addEventListener('touchstart',  function(e){#{@touch_status = :touchstart }}, false)
+      document.body.addEventListener('touchend',    function(e){#{@touch_status = :touchend   }}, false)
+      document.body.addEventListener('touchcancel', function(e){#{@touch_status = :touchcancel}}, false)
+    }
+  end
+
+  def touched?
+
+  end
+
+  def touching?
+    if @touch_status == :touchstart
+      @touch_status = nil
+      true
+    end
+  end
+
+  def touched?
+    if @touch_status == :touchend or @touch_status == :touchcancel
+      @touch_status = nil
+      true
+    end
   end
 
   def new_zebra
@@ -243,23 +271,21 @@ class LeoneMangione < Game
     end
     return if @pause
 
-    if keyboard.pressed?(:ctrl)
+    if keyboard.pressed?(:ctrl) or touched?
       @lion.should_roar = true
     end
 
-    if keyboard.pressing?(:ctrl)
+    if keyboard.pressing?(:ctrl) or touching?
       if @lion.can_eat?(@prey)
         replace_prey!
         @score.score!
         sort_things!
-        p @things.map(&:class)
       elsif @lion.in_eat_range?(@prey)
         game_over!
         return
       end
     end
 
-    p @prey.position.x
     replace_prey! if @prey.position.x < -200
 
     @things.each do |thing|
