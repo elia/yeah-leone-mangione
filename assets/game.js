@@ -41,7 +41,7 @@ if (obj == null) obj = nil;
   $opal.dynamic_require_severity = "error";
   var self = $opal.top, $scope = $opal, nil = $opal.nil, $breaker = $opal.breaker, $slice = $opal.slice, $module = $opal.module, $klass = $opal.klass, $range = $opal.range;
 
-  $opal.add_stubs(['$require', '$map', '$new', '$upto', '$downcase', '$name', '$class', '$attr_reader', '$+', '$>=', '$-', '$size', '$[]', '$to_i', '$*', '$push', '$translate', '$/', '$-@', '$width', '$image', '$pop', '$attr_accessor', '$play', '$should_roar', '$roar', '$should_roar=', '$in_eat_range?', '$===', '$x', '$cover?', '$position', '$include', '$x=', '$to_f', '$cycle', '$<=', '$fill_color=', '$text_font=', '$text_size=', '$fill_text', '$to_s', '$display', '$y', '$new_prey', '$sort_things!', '$fill_color', '$!', '$new_zebra', '$new_elephant', '$sort_by', '$to_proc', '$draw', '$delete', '$<<', '$pressed?', '$keyboard', '$pressing?', '$can_eat?', '$replace_prey!', '$score!', '$p', '$game_over!', '$<', '$each', '$update']);
+  $opal.add_stubs(['$require', '$map', '$new', '$upto', '$downcase', '$name', '$class', '$attr_reader', '$+', '$>=', '$-', '$size', '$[]', '$to_i', '$*', '$push', '$translate', '$/', '$-@', '$width', '$image', '$pop', '$attr_accessor', '$play', '$should_roar', '$roar', '$should_roar=', '$in_eat_range?', '$===', '$x', '$cover?', '$position', '$include', '$x=', '$to_f', '$cycle', '$<=', '$fill_color=', '$text_font=', '$text_size=', '$fill_text', '$to_s', '$display', '$y', '$new_prey', '$listen_to_touch_events', '$sort_things!', '$fill_color', '$==', '$!', '$new_zebra', '$new_elephant', '$sort_by', '$to_proc', '$draw', '$delete', '$<<', '$pressed?', '$keyboard', '$touched?', '$pressing?', '$touching?', '$can_eat?', '$replace_prey!', '$score!', '$game_over!', '$<', '$each', '$update']);
   self.$require("pp");
   (function($base) {
     var self = $module($base, 'Prey');
@@ -330,7 +330,7 @@ if (i == null) i = nil;
 
     var def = self.$$proto, $scope = self.$$scope;
 
-    def.size = def.horizon = def.savannah = def.prey = def.lion = def.score = def.rand = def.things = def.game_over = def.pause = def.pause_position = nil;
+    def.size = def.horizon = def.savannah = def.prey = def.lion = def.score = def.touch_status = def.rand = def.things = def.game_over = def.pause = def.pause_position = nil;
     def.$setup = function() {
       var $a, $b, self = this;
 
@@ -340,11 +340,50 @@ if (i == null) i = nil;
       self.prey = self.$new_prey();
       self.savannah = $scope.get('Savannah').$new(1600);
       self.score = $scope.get('Score').$new($scope.get('V')['$[]'](self.size.$x()['$*'](0.8), 100));
+      self.$listen_to_touch_events();
       self.things = [self.savannah, self.prey, self.lion, self.score];
       self['$sort_things!']();
       (($a = [$scope.get('Font')['$[]']("deja-vu-serif.ttf")]), $b = self.$display(), $b['$text_font='].apply($b, $a), $a[$a.length-1]);
       (($a = [16]), $b = self.$display(), $b['$text_size='].apply($b, $a), $a[$a.length-1]);
       return self.$display().$fill_color($scope.get('C')['$[]']("#fff"));
+    };
+
+    def.$listen_to_touch_events = function() {
+      var self = this;
+
+      
+      document.body.addEventListener('touchstart',  function(e){self.touch_status = "touchstart"}, false)
+      document.body.addEventListener('touchend',    function(e){self.touch_status = "touchend"}, false)
+      document.body.addEventListener('touchcancel', function(e){self.touch_status = "touchcancel"}, false)
+    ;
+    };
+
+    def['$touched?'] = function() {
+      var self = this;
+
+      return nil;
+    };
+
+    def['$touching?'] = function() {
+      var self = this;
+
+      if (self.touch_status['$==']("touchstart")) {
+        self.touch_status = nil;
+        return true;
+        } else {
+        return nil
+      };
+    };
+
+    def['$touched?'] = function() {
+      var $a, $b, self = this;
+
+      if ((($a = ((($b = self.touch_status['$==']("touchend")) !== false && $b !== nil) ? $b : self.touch_status['$==']("touchcancel"))) !== nil && (!$a.$$is_boolean || $a == true))) {
+        self.touch_status = nil;
+        return true;
+        } else {
+        return nil
+      };
     };
 
     def.$new_zebra = function() {
@@ -393,7 +432,7 @@ if (i == null) i = nil;
     };
 
     return (def.$update = function(elapsed) {
-      var $a, $b, $c, TMP_6, self = this;
+      var $a, $b, TMP_6, self = this;
 
       if ((($a = self.game_over) !== nil && (!$a.$$is_boolean || $a == true))) {
         return nil};
@@ -404,24 +443,22 @@ if (i == null) i = nil;
           $scope.get('Text').$draw(self.$display(), self.pause_position, "Paused");};};
       if ((($a = self.pause) !== nil && (!$a.$$is_boolean || $a == true))) {
         return nil};
-      if ((($a = self.$keyboard()['$pressed?']("ctrl")) !== nil && (!$a.$$is_boolean || $a == true))) {
+      if ((($a = ((($b = self.$keyboard()['$pressed?']("ctrl")) !== false && $b !== nil) ? $b : self['$touched?']())) !== nil && (!$a.$$is_boolean || $a == true))) {
         (($a = [true]), $b = self.lion, $b['$should_roar='].apply($b, $a), $a[$a.length-1])};
-      if ((($a = self.$keyboard()['$pressing?']("ctrl")) !== nil && (!$a.$$is_boolean || $a == true))) {
+      if ((($a = ((($b = self.$keyboard()['$pressing?']("ctrl")) !== false && $b !== nil) ? $b : self['$touching?']())) !== nil && (!$a.$$is_boolean || $a == true))) {
         if ((($a = self.lion['$can_eat?'](self.prey)) !== nil && (!$a.$$is_boolean || $a == true))) {
           self['$replace_prey!']();
           self.score['$score!']();
           self['$sort_things!']();
-          self.$p(($a = ($b = self.things).$map, $a.$$p = "class".$to_proc(), $a).call($b));
         } else if ((($a = self.lion['$in_eat_range?'](self.prey)) !== nil && (!$a.$$is_boolean || $a == true))) {
           self['$game_over!']();
           return nil;}};
-      self.$p(self.prey.$position().$x());
       if (self.prey.$position().$x()['$<'](-200)) {
         self['$replace_prey!']()};
-      return ($a = ($c = self.things).$each, $a.$$p = (TMP_6 = function(thing){var self = TMP_6.$$s || this;
+      return ($a = ($b = self.things).$each, $a.$$p = (TMP_6 = function(thing){var self = TMP_6.$$s || this;
 if (thing == null) thing = nil;
       thing.$update(elapsed);
-        return thing.$draw(self.$display());}, TMP_6.$$s = self, TMP_6), $a).call($c);
+        return thing.$draw(self.$display());}, TMP_6.$$s = self, TMP_6), $a).call($b);
     }, nil) && 'update';
   })(self, $scope.get('Game'));
 })(Opal);
